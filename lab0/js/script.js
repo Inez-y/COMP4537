@@ -1,12 +1,28 @@
+/**
+ * The docstring format was provided by ChatGPT
+ */
 import messages from "../lang/messages/en/user.js";
 
+/**
+ * @class InitializeGame
+ * @description Handles the initialization of the memory game. Sets up event listeners for user input 
+ * and validates the input to start the game.
+ */
 class InitializeGame {
+    /**
+     * @constructor
+     * Initializes the game by attaching event listeners and preparing input elements.
+     */
     constructor() {
         this.userInputStr = document.getElementById("user-input");
         this.startButton = document.getElementById("go-button");
         this.startButton.addEventListener("click", () => this.prepareGame());
     }
 
+    /**
+     * @method prepareGame
+     * Validates user input and starts the game if valid; displays error messages for invalid input.
+     */
     prepareGame() {
         console.log("User clicked the GO button. Preparing the game...");
         const userInputInt = parseInt(this.userInputStr.value);
@@ -21,7 +37,17 @@ class InitializeGame {
     }
 }
 
+/**
+ * @class StartGame
+ * @description Handles the core functionality of the memory game, including creating buttons, shuffling,
+ * hiding numbers, and evaluating user input.
+ */
 class StartGame {
+    /**
+     * @constructor
+     * Initializes the game with the number of boxes specified by the user.
+     * @param {number} userInput - The number of boxes to create.
+     */
     constructor(userInput) {
         this.numOfBox = userInput;
         this.boxOrder = new Map();
@@ -30,9 +56,14 @@ class StartGame {
         this.boxBlock = document.createElement("div");
         this.boxBlock.className = "box-content";
 
+        // Calling a method to initiate
         this.makeBoxes();
     }
 
+    /**
+     * @method makeBoxes
+     * Creates the buttons for the memory game and prepares the shuffling sequence.
+     */
     makeBoxes() {
         console.log("Making boxes...");
         if (!this.theContent) {
@@ -49,6 +80,10 @@ class StartGame {
         }, this.numOfBox * 1000);
     }
 
+    /**
+     * @method randomBox
+     * Creates buttons with random colors and numbers, stores their order in a map.
+     */
     randomBox() {
         for (let i = 1; i <= this.numOfBox; i++) {
             const boxColour = this.getRandomColour();
@@ -63,25 +98,36 @@ class StartGame {
         console.log("Box Order:", [...this.boxOrder.entries()]);
     }
 
+    /**
+     * @method getRandomColour
+     * Generates a random hexadecimal color.
+     * @returns {string} A random hex color string.
+     */
     getRandomColour() {
         return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
     }
 
+    /**
+     * @method shuffleBoxes
+     * Shuffles the buttons randomly on the screen, ensuring they do not overlap the form.
+     */
     shuffleBoxes() {
         console.log("Shuffling boxes...");
         const buttons = Array.from(this.boxBlock.querySelectorAll(".box-button"));
+        const formHeight = document.getElementById("form").offsetHeight; // Get form height
+        const formBottom = document.getElementById("form").getBoundingClientRect().bottom; // Bottom position of the form
         let moves = 0;
-
+    
         const shuffleInterval = setInterval(() => {
             buttons.forEach(button => {
                 const maxX = window.innerWidth - button.offsetWidth;
-                const maxY = window.innerHeight - button.offsetHeight;
-
+                const maxY = window.innerHeight - formBottom - button.offsetHeight; // Exclude form space
+    
                 button.style.position = "absolute";
-                button.style.top = `${Math.random() * maxY}px`;
-                button.style.left = `${Math.random() * maxX}px`;
+                button.style.top = `${Math.random() * maxY + formBottom}px`; // Ensure position starts below the form
+                button.style.left = `${Math.random() * maxX}px`; // Ensure position is within window width
             });
-
+    
             moves++;
             if (moves === this.numOfBox) {
                 clearInterval(shuffleInterval);
@@ -89,7 +135,12 @@ class StartGame {
             }
         }, 2000);
     }
-
+    
+    /**
+     * @method hideNumbersAndStartGame
+     * Hides the numbers on the buttons and attaches event listeners for user interaction.
+     * @param {HTMLElement[]} buttons - List of buttons to hide numbers and prepare for user clicks.
+     */
     hideNumbersAndStartGame(buttons) {
         console.log("Hiding numbers and starting the game...");
         buttons.forEach(button => {
@@ -98,6 +149,11 @@ class StartGame {
         });
     }
 
+    /**
+     * @method userMemoryTest
+     * Handles user input and checks whether the correct button is clicked in sequence.
+     * @param {Event} event - The click event triggered by the user.
+     */
     userMemoryTest(event) {
         console.log("User memory test begins!");
         const button = event.target;
@@ -122,8 +178,13 @@ class StartGame {
         }
     }
     
+    /**
+     * @method normalizeColor
+     * Converts a given color to a standardized format for comparison.
+     * @param {string} color - The color string to normalize.
+     * @returns {string} Normalized color string.
+     */
     normalizeColor(color) {
-        // Converts colors to a consistent format (e.g., hex)
         const tempDiv = document.createElement("div");
         tempDiv.style.color = color;
         document.body.appendChild(tempDiv);
@@ -132,7 +193,10 @@ class StartGame {
         return normalizedColor;
     }
 
-    
+    /**
+     * @method revealCorrectOrder
+     * Reveals the correct order of the buttons to the user.
+     */
     revealCorrectOrder() {
         console.log("Revealing correct order...");
         const buttons = Array.from(this.boxBlock.querySelectorAll(".box-button"));
@@ -141,13 +205,26 @@ class StartGame {
         });
     }
 }
-
-// File: js/MessageDisplay.js
+/**
+ * @class MessageDisplay
+ * @description Displays feedback messages to the user based on their actions in the game.
+ *              File: js/MessageDisplay.js
+ */
 class MessageDisplay {
+    /**
+     * @constructor
+     * Initializes the MessageDisplay class with the messages object.
+     */
     constructor() {
-        this.messages = messages; // Inject messages from user.js
+        this.messages = messages; 
     }
 
+    /**
+     * @method displayMessage
+     * Displays a message to the user in the form container and removes it after a timeout.
+     * @param {string} msgKey - The key of the message to display from the messages object.
+     * @param {string} [additionalInfo=""] - Additional information to append to the message.
+     */
     displayMessage(msgKey, additionalInfo = "") {
         const message = this.messages[msgKey] || "Unknown message key!";
         const finalMessage = message + additionalInfo;
@@ -166,6 +243,7 @@ class MessageDisplay {
     }
 }
 
+// Game is automatically ready when the page is loaded
 document.addEventListener("DOMContentLoaded", () => {
     new InitializeGame();
 });
