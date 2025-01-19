@@ -1,249 +1,121 @@
-/**
- * The docstring format was provided by ChatGPT
- */
 import messages from "../lang/messages/en/user.js";
 
-/**
- * @class InitializeGame
- * @description Handles the initialization of the memory game. Sets up event listeners for user input 
- * and validates the input to start the game.
- */
-class InitializeGame {
-    /**
-     * @constructor
-     * Initializes the game by attaching event listeners and preparing input elements.
-     */
+class Writer {
     constructor() {
-        this.userInputStr = document.getElementById("user-input");
-        this.startButton = document.getElementById("go-button");
-        this.startButton.addEventListener("click", () => this.prepareGame());
+        this.tuple = "{}"; // key-storedate, value-msg
+        this.json = JSON.parse(this.tuple);
+
+        this.add_btn = document.getElementById("add-button");
+        this.add_btn.addEventListener("click", () => this.add());
+        this.msg = document.getElementById("msg");
+
+        this.body = document.getElementById("main-content");
+        this.content = document.createElement("div");
+        this.each_content = document.createElement("p");
+
+        // display message
+        this.display();
+        this.auto_save();
     }
 
-    /**
-     * @method prepareGame
-     * Validates user input and starts the game if valid; displays error messages for invalid input.
-     */
-    prepareGame() {
-        console.log("User clicked the GO button. Preparing the game...");
-        const userInputInt = parseInt(this.userInputStr.value);
+    time() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const date = now.toDateString();
 
-        if (isNaN(userInputInt) || userInputInt < 3 || userInputInt > 7) {
+        // 00:00:00 format - padStart(2 digits, fill with 0)
+        const formattedTime = `${date}, ${hours}:${minutes}:${seconds}`;
+        console.log(`Current Time: ${formattedTime}`);
+
+        return formattedTime;
+    }
+
+    add() {
+        console.log("Clicked a add button")
+
+
+        if (typeof (Storage) == "undefined") {
             const msgDisplay = new MessageDisplay();
-            msgDisplay.displayMessage("invalidInput");
-            return;
-        }
+            console.error("Not supported localStorage");
+            msgDisplay.displayMessage(messages.msg_notSupported);
+        } 
 
-        new StartGame(userInputInt);
-    }
-}
+        const inputValue = this.msg.value.trim();
+        // setting local storage item
+        localStorage.setItem(this.time(), inputValue);
+        // document.write(messages.msg_written + this.msg);
+        console.log("Current local storage length: " + localStorage.length);
 
-/**
- * @class StartGame
- * @description Handles the core functionality of the memory game, including creating buttons, shuffling,
- * hiding numbers, and evaluating user input.
- */
-class StartGame {
-    /**
-     * @constructor
-     * Initializes the game with the number of boxes specified by the user.
-     * @param {number} userInput - The number of boxes to create.
-     */
-    constructor(userInput) {
-        this.numOfBox = userInput;
-        this.boxOrder = new Map();
-        this.userBoxOrder = new Map();
-        this.theContent = document.getElementById("main-content");
-        this.boxBlock = document.createElement("div");
-        this.boxBlock.className = "box-content";
-
-        // Calling a method to initiate
-        this.makeBoxes();
+        this.display();
     }
 
-    /**
-     * @method makeBoxes
-     * Creates the buttons for the memory game and prepares the shuffling sequence.
-     */
-    makeBoxes() {
-        console.log("Making boxes...");
-        if (!this.theContent) {
-            console.error("No element with id 'main-content' found.");
-            return;
-        }
+    modify() {
 
-        this.theContent.innerHTML = ""; // Clear previous game content
-        this.theContent.appendChild(this.boxBlock);
-        this.randomBox();
-
-        setTimeout(() => {
-            this.shuffleBoxes();
-        }, this.numOfBox * 1000);
     }
 
-    /**
-     * @method randomBox
-     * Creates buttons with random colors and numbers, stores their order in a map.
-     */
-    randomBox() {
-        for (let i = 1; i <= this.numOfBox; i++) {
-            const boxColour = this.getRandomColour();
-            const eachBox = document.createElement("button");
-            eachBox.className = "box-button";
-            eachBox.style.backgroundColor = boxColour;
-            eachBox.textContent = i; // Display number
-            this.boxOrder.set(i, boxColour);
-            this.boxBlock.appendChild(eachBox);
-        }
-
-        console.log("Box Order:", [...this.boxOrder.entries()]);
-    }
-
-    /**
-     * @method getRandomColour
-     * Generates a random hexadecimal color.
-     * @returns {string} A random hex color string.
-     */
-    getRandomColour() {
-        return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-    }
-
-    /**
-     * @method shuffleBoxes
-     * Shuffles the buttons randomly on the screen, ensuring they do not overlap the form.
-     */
-    shuffleBoxes() {
-        console.log("Shuffling boxes...");
-        const buttons = Array.from(this.boxBlock.querySelectorAll(".box-button"));
-        const formHeight = document.getElementById("form").offsetHeight; // Get form height
-        const formBottom = document.getElementById("form").getBoundingClientRect().bottom; // Bottom position of the form
-        let moves = 0;
+    auto_save() {
+        console.log("Auto save triggered");
     
-        const shuffleInterval = setInterval(() => {
-            buttons.forEach(button => {
-                const maxX = window.innerWidth - button.offsetWidth;
-                const maxY = window.innerHeight - formBottom - button.offsetHeight; // Exclude form space
+        let lastSavedValue = ""; 
+        const autoSaveKey = "autoSave"; // Key used for auto-saving in localStorage
     
-                button.style.position = "absolute";
-                button.style.top = `${Math.random() * maxY + formBottom}px`; // Ensure position starts below the form
-                button.style.left = `${Math.random() * maxX}px`; // Ensure position is within window width
-            });
-    
-            moves++;
-            if (moves === this.numOfBox) {
-                clearInterval(shuffleInterval);
-                this.hideNumbersAndStartGame(buttons);
+        // Auto-save logic
+        setInterval(() => {
+            const currentValue = this.msg.value.trim(); 
+            if (currentValue && currentValue !== lastSavedValue) {
+                console.log("Auto-saving:", currentValue);
+                localStorage.setItem(autoSaveKey, currentValue);
+                lastSavedValue = currentValue; 
+                document.getElementById("clock").textContent = this.time();
             }
         }, 2000);
+    
+        // Update the display every 2 seconds
+        setInterval(() => this.display(), 2000);
+
     }
     
-    /**
-     * @method hideNumbersAndStartGame
-     * Hides the numbers on the buttons and attaches event listeners for user interaction.
-     * @param {HTMLElement[]} buttons - List of buttons to hide numbers and prepare for user clicks.
-     */
-    hideNumbersAndStartGame(buttons) {
-        console.log("Hiding numbers and starting the game...");
-        buttons.forEach(button => {
-            button.textContent = ""; // Hide the numbers
-            button.addEventListener("click", (e) => this.userMemoryTest(e));
-        });
-    }
-
-    /**
-     * @method userMemoryTest
-     * Handles user input and checks whether the correct button is clicked in sequence.
-     * @param {Event} event - The click event triggered by the user.
-     */
-    userMemoryTest(event) {
-        console.log("User memory test begins!");
-        const button = event.target;
-        const clickedColor = this.normalizeColor(button.style.backgroundColor);
-        const expectedColor = this.normalizeColor(this.boxOrder.get(this.userBoxOrder.size + 1));
     
-        // Check if the clicked color matches the expected color
-        if (clickedColor === expectedColor) {
-            this.userBoxOrder.set(this.userBoxOrder.size + 1, clickedColor);
-            button.textContent = this.userBoxOrder.size; // Reveal number
     
-            // Check if the user has completed the game
-            if (this.userBoxOrder.size === this.boxOrder.size) {
-                const msgDisplay = new MessageDisplay();
-                msgDisplay.displayMessage("excellentMemory");
-            }
-        } else {
-            // If the user clicks the wrong order
-            const msgDisplay = new MessageDisplay();
-            msgDisplay.displayMessage("wrongOrder");
-            this.revealCorrectOrder();
-        }
-    }
-    
-    /**
-     * @method normalizeColor
-     * Converts a given color to a standardized format for comparison.
-     * @param {string} color - The color string to normalize.
-     * @returns {string} Normalized color string.
-     */
-    normalizeColor(color) {
-        const tempDiv = document.createElement("div");
-        tempDiv.style.color = color;
-        document.body.appendChild(tempDiv);
-        const normalizedColor = window.getComputedStyle(tempDiv).color;
-        document.body.removeChild(tempDiv);
-        return normalizedColor;
-    }
 
-    /**
-     * @method revealCorrectOrder
-     * Reveals the correct order of the buttons to the user.
-     */
-    revealCorrectOrder() {
-        console.log("Revealing correct order...");
-        const buttons = Array.from(this.boxBlock.querySelectorAll(".box-button"));
-        buttons.forEach((button, index) => {
-            button.textContent = index + 1;
-        });
-    }
-}
-/**
- * @class MessageDisplay
- * @description Displays feedback messages to the user based on their actions in the game.
- *              File: js/MessageDisplay.js
- */
-class MessageDisplay {
-    /**
-     * @constructor
-     * Initializes the MessageDisplay class with the messages object.
-     */
-    constructor() {
-        this.messages = messages; 
+    display() {
+        console.log("Displaying messages");
+
+        this.body.innerHTML = "";
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i); 
+            const value = localStorage.getItem(key);
+            // console.log(`${key}: ${value}`);
+            this.body.appendChild(this.content);
+
+            const messageDiv = document.createElement("div");
+            const delDiv = document.createElement("button");
+            messageDiv.className = "message"; // Add CSS class for styling
+            messageDiv.textContent = `${value}`; // Display key and value
+
+            delDiv.id = `remove-id-${key}`;
+            delDiv.textContent = "Remove";
+            delDiv.className = "remove-button";
+            delDiv.addEventListener("click", () => this.remove(key));
+
+            // Append to the main content area
+            this.body.appendChild(messageDiv);
+            this.body.appendChild(delDiv);
+        }        
     }
 
-    /**
-     * @method displayMessage
-     * Displays a message to the user in the form container and removes it after a timeout.
-     * @param {string} msgKey - The key of the message to display from the messages object.
-     * @param {string} [additionalInfo=""] - Additional information to append to the message.
-     */
-    displayMessage(msgKey, additionalInfo = "") {
-        const message = this.messages[msgKey] || "Unknown message key!";
-        const finalMessage = message + additionalInfo;
-
-        const msgBlock = document.createElement("p");
-        msgBlock.textContent = finalMessage;
-
-        const element = document.getElementById("form");
-        if (!element) return;
-
-        element.appendChild(msgBlock);
-
-        setTimeout(() => {
-            element.removeChild(msgBlock);
-        }, 2000); // Message disappears after 2 seconds
+    remove(key) {
+        console.log(`Clicked a remove button with id: ${key}`);
+        localStorage.removeItem(key);
+        console.log(`Length of localStorage is: ${localStorage.length}`);
+        this.display();
     }
 }
 
 // Game is automatically ready when the page is loaded
 document.addEventListener("DOMContentLoaded", () => {
-    new InitializeGame();
+    new Writer();
 });

@@ -4,16 +4,3 @@ body {
     text-align: center;
 }
 
-.box-content {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 1em;
-    margin: 1em;
-}
-
-/* height and width were given */
-.box-button {
-    height: 5em;
-    width: 10em;
-}
