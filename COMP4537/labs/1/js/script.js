@@ -50,6 +50,7 @@ class Writer {
         console.log("Current local storage length: " + localStorage.length);
         
         this.lastSavedValue = "";
+        this.msg.value = "";
         this.display();
     }
 
@@ -79,9 +80,6 @@ class Writer {
 
     }
     
-    
-    
-
     display() {
         console.log("Displaying messages");
 
