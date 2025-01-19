@@ -13,6 +13,7 @@ class Writer {
         this.content = document.createElement("div");
         this.each_content = document.createElement("p");
 
+        this.lastSavedValue = "";
         // display message
         this.display();
         this.auto_save();
@@ -47,7 +48,8 @@ class Writer {
         localStorage.setItem(this.time(), inputValue);
         // document.write(messages.msg_written + this.msg);
         console.log("Current local storage length: " + localStorage.length);
-
+        
+        this.lastSavedValue = "";
         this.display();
     }
 
@@ -58,7 +60,7 @@ class Writer {
     auto_save() {
         console.log("Auto save triggered");
     
-        let lastSavedValue = ""; 
+        // let lastSavedValue = ""; 
         const autoSaveKey = "autoSave"; // Key used for auto-saving in localStorage
     
         // Auto-save logic
@@ -67,7 +69,7 @@ class Writer {
             if (currentValue && currentValue !== lastSavedValue) {
                 console.log("Auto-saving:", currentValue);
                 localStorage.setItem(autoSaveKey, currentValue);
-                lastSavedValue = currentValue; 
+                this.lastSavedValue = currentValue; 
                 document.getElementById("clock").textContent = this.time();
             }
         }, 2000);
