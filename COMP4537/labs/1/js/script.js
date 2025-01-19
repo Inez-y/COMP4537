@@ -66,7 +66,7 @@ class Writer {
         // Auto-save logic
         setInterval(() => {
             const currentValue = this.msg.value.trim(); 
-            if (currentValue && currentValue !== lastSavedValue) {
+            if (currentValue && currentValue !== this.lastSavedValue) {
                 console.log("Auto-saving:", currentValue);
                 localStorage.setItem(autoSaveKey, currentValue);
                 this.lastSavedValue = currentValue; 
