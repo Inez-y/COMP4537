@@ -4,3 +4,20 @@ body {
     text-align: center;
 }
 
+b {
+    padding: 1em;
+}
+
+button {
+    margin: 0.1em;
+    background-color: antiquewhite;
+    border-color: antiquewhite;
+}
+
+input {
+    border-color: antiquewhite;
+}
+
+#save-info {
+    text-align: right;
+}
