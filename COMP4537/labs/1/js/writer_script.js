@@ -72,10 +72,6 @@ class Writer {
 
     save(ids) {
         const inputElement = document.getElementById(`input-box-${ids}`);
-        if (!inputElement) {
-            onsole.error(this.formatMessage(messages.msg_error, { error: "Input element not found" }));
-            return;
-        }
 
         const value = inputElement.value.trim();
         const key = `${ids}`;
