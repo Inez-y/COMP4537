@@ -81,6 +81,7 @@ class Writer {
 
         if (value === "") {
             console.warn(this.formatMessage(messages.msg_error, { error: "Input field is empty" }));
+            // still saved
             return;
         }
 
@@ -124,13 +125,13 @@ class Writer {
     modify(key) {
         const inputElement = document.getElementById(`input-box-${key}`);
         if (!inputElement) {
-            console.error(this.formatMessage(messages.msg_error, { error: "Input element not found" }));
+            console.log(this.formatMessage(messages.msg_error, { error: "Input element not found" }));
             return;
         }
 
         const newValue = inputElement.value.trim();
         if (newValue === "") {
-            console.warn(this.formatMessage(messages.msg_error, { error: "Cannot save an empty value" }));
+            console.log(this.formatMessage(messages.msg_error, { error: "Cannot save an empty value" }));
             return;
         }
 
@@ -190,7 +191,29 @@ class Writer {
             this.body.appendChild(new_div);
         }
     }
+
+    displayMessage(message) {
+        // Create a message element
+        const messageElement = document.createElement("div");
+        messageElement.className = "notification"; // Add a class for styling
+        messageElement.textContent = message;
+    
+        // Append the message to the body or a specific container
+        const messageContainer = document.getElementById("message-container");
+        if (messageContainer) {
+            messageContainer.appendChild(messageElement);
+        } else {
+            document.body.appendChild(messageElement); // Fallback if no container
+        }
+    
+        // Optionally remove the message after a delay
+        setTimeout(() => {
+            messageElement.remove();
+        }, 3000); // Message will disappear after 3 seconds
+    }
+    
 }
+
 
 // Automatically ready when the page is loaded
 document.addEventListener("DOMContentLoaded", () => {
