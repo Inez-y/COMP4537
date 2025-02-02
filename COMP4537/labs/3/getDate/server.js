@@ -23,7 +23,7 @@
 
 const http = require('http');
 const url = require('url');
-const messages = require("./en/en"); // Import messages
+const messages = require("./lang/en"); // Import messages
 const dateModule = require("./modules/utils"); // Import getDate function
 const address = "https://lab-3kcxx.ondigitalocean.app/COMP4537/labs/3/getDate";
 
