@@ -3,8 +3,8 @@ const app = express();
 const port = 3000; 
 const { getDate } = require("./modules/utils");
 const messages = require("./lang/en/en");
-// const url = "https://lab-3kcxx.ondigitalocean.app/COMP4537/labs/3/getDate";
-const url = "/COMP4537/labs/3/getDate";
+const url = "https://lab-3kcxx.ondigitalocean.app/COMP4537/labs/3/getDate";
+// const url = "/COMP4537/labs/3/getDate";
 
 app.get(url, (req, res) => {
     const name = req.query.name || "Guest";
@@ -17,7 +17,7 @@ app.get(url, (req, res) => {
 
 // Start server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server running at ${url}`);
 });
 
 
