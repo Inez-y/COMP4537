@@ -1,24 +1,24 @@
-const express = require("express");
-const app = express();
-const port = 3000; 
-const { getDate } = require("./modules/utils");
-const messages = require("./lang/en/en");
-const targeturl = "https://lab-3kcxx.ondigitalocean.app/COMP4537/labs/3/getDate";
-const url = "/COMP4537/labs/3/getDate";
+// const express = require("express");
+// const app = express();
+// const port = 3000; 
+// const { getDate } = require("./modules/utils");
+// const messages = require("./lang/en/en");
+// const targeturl = "https://lab-3kcxx.ondigitalocean.app/COMP4537/labs/3/getDate";
+// const url = "/COMP4537/labs/3/getDate";
 
-app.get(url, (req, res) => {
-    const name = req.query.name || "Guest";
-    const currentTime = getDate();
+// app.get(url, (req, res) => {
+//     const name = req.query.name || "Guest";
+//     const currentTime = getDate();
 
-    const responseMessage = `<p style="color:blue;">${messages.greeting.replace("%s", name)} ${currentTime}</p>`;
+//     const responseMessage = `<p style="color:blue;">${messages.greeting.replace("%s", name)} ${currentTime}</p>`;
 
-    res.send(responseMessage);
-});
+//     res.send(responseMessage);
+// });
 
-// Start server
-app.listen(port, () => {
-    console.log(`Server running at ${targeturl}`);
-});
+// // Start server
+// app.listen(port, () => {
+//     console.log(`Server running at ${targeturl}`);
+// });
 
 
 // const http = require('http');
@@ -45,3 +45,33 @@ app.listen(port, () => {
 // }).listen(PORT, HOST, () => {
 //     console.log(`Server is running at ${address}`);
 // });
+
+const http = require('http');
+const url = require('url');
+const { getDate } = require("./modules/utils");
+const messages = require("./lang/en/en");
+
+const PORT = 3000;
+const HOST = '0.0.0.0';  // does it work if i put my domain?
+const ENDPOINT = "/COMP4537/labs/3/getDate";
+
+const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+
+    if (parsedUrl.pathname === ENDPOINT) {
+        const name = parsedUrl.query.name || "Guest";
+        const currentTime = getDate();
+
+        const responseMessage = `<p style="color:blue;">${messages.greeting.replace("%s", name)} ${currentTime}</p>`;
+
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(responseMessage);
+    } else {
+        res.writeHead(404, { 'Content-Type': 'text/html' });
+        res.end('<h1>404 Not Found</h1>');
+    }
+});
+
+server.listen(PORT, HOST, () => {
+    console.log(`Server running at http://${HOST}:${PORT}${ENDPOINT}`);
+});
